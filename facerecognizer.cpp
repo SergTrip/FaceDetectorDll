@@ -1,13 +1,9 @@
 #include "facerecognizer.h"
-//#include "ui_facerecognizer.h"
 
 FaceRecognizer::FaceRecognizer(QWidget *parent) :
-    QWidget(parent)
- //   ui(new Ui::FaceRecognizer)
+    QWidget (parent),
+    m_nTime ( 10 )
 {
- //   ui->setupUi(this);
-
-    //====================== Нало полезного кода ===============================
     qDebug() << "Face cascade path: "<< FACE_CASCADE_NAME;
 
     // Load the cascades
@@ -22,13 +18,9 @@ FaceRecognizer::FaceRecognizer(QWidget *parent) :
 //        qDebug() << ("--(!)Error loading eyes cascade\n");
 //        return;
 //    }
-    //==========================================================================
 
-    // Пробуем открыть файл
-    // m_oCVCapture.open( FILE_NAME );
     // Пробуем открыть камеру
     m_oCVCapture.open( 0 );
-
     // Если неудалось
     if( !m_oCVCapture.isOpened() )
     {
@@ -36,6 +28,7 @@ FaceRecognizer::FaceRecognizer(QWidget *parent) :
         qDebug() << "Не удалось открыть файл или камеру!";
         return;
     }
+
     // Вычитываем первый кадр
     m_oCVCapture >> m_oCVMat;
 
@@ -47,7 +40,7 @@ FaceRecognizer::FaceRecognizer(QWidget *parent) :
     }
 
     // Создать мзображение Qt c таким же размером
-    m_oQtImage = QImage(  m_oCVMat.cols, m_oCVMat.rows, QImage::Format_RGB888);
+    m_oQtImage = QImage(  m_oCVMat.cols, m_oCVMat.rows, QImage::Format_RGB888 );
 
     // Установить размеры окна по размеру изображения
     this->setMinimumSize( m_oQtImage.width()/2.0, m_oQtImage.height()/2.0 );
@@ -68,14 +61,14 @@ FaceRecognizer::FaceRecognizer(QWidget *parent) :
     m_pQtTimer = new QTimer(this);
     // Подключить слот
     connect( m_pQtTimer, SIGNAL(timeout()), this, SLOT( queryFrame() ) );
-    // Запустить таймер
-//    m_pQtTimer->setSingleShot( true );
-    m_pQtTimer->start(10);
+
+    // Обработать следующий кадр
+    queryFrame();
 }
 
 FaceRecognizer::~FaceRecognizer()
 {
- //   delete ui;
+
 }
 
 void FaceRecognizer::detectAndDraw()
@@ -104,10 +97,8 @@ void FaceRecognizer::detectAndDraw()
     // Для каждого лица в списке
     for( size_t i = 0; i < faces.size(); i++ )
     {
-        cv::rectangle(  m_oCVMat    ,
-                        faces[i]    ,
-                        cv::Scalar( 0, 255, 0 ),
-                        2                          );
+        // Нарисовать прямоугольник
+        cv::rectangle(  m_oCVMat, faces[i], cv::Scalar( 0, 255, 0 ), 2 );
         /*
         // Скопировать само лицо
         cv::Mat faceROI = frame_gray( faces[i] );
@@ -155,12 +146,40 @@ void FaceRecognizer::queryFrame()
         // Определить расположение лица
         this->detectAndDraw();
     }
-
     // Обновить окно
     this->update();
+}
 
-    // Перезапустить таймер
-//    m_pQtTimer->start(50);
+void FaceRecognizer::startTimer()
+{
+    // Запустить таймер
+    m_pQtTimer->start( m_nTime );
+}
+
+void FaceRecognizer::stopTimer()
+{
+    // Остановить таймер
+    m_pQtTimer->stop();
+}
+
+void FaceRecognizer::setTime(int time)
+{
+    // Обновить значение
+    m_nTime = time;
+    // Если таймер работает
+    if( m_pQtTimer->isActive() )
+    {
+        // Остановить таймер
+        m_pQtTimer->stop();
+        // Запустить таймер
+        m_pQtTimer->start( m_nTime );
+    }
+}
+
+QImage FaceRecognizer::getImage()
+{
+    // Вернуть изображение
+    return m_oQtImage.convertToFormat( QImage::Format_RGBA8888 );
 }
 
 // Finally - painting, which is easy:
@@ -170,8 +189,7 @@ void FaceRecognizer::paintEvent(QPaintEvent* event)
     QPainter painter( (QWidget*)this );
     // Выводим изображение
     // painter.drawImage( 0, 0, m_oQtImage);
-    painter.drawImage( 0, 0,
-                       m_oQtImage.scaled(  this->width(),
-                                            this->height(),
-                                            Qt::KeepAspectRatio )   );
+    painter.drawImage( 0, 0, m_oQtImage.scaled( this->width(),
+                                                this->height(),
+                                                Qt::KeepAspectRatio )   );
 }

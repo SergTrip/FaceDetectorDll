@@ -8,17 +8,30 @@ QT       += widgets
 
 QT       -= gui
 
-TARGET = FaceDetectorDll
-TEMPLATE = lib
+TARGET      = FaceDetectorDll
+
+TEMPLATE    = lib
 
 DEFINES += FACEDETECTORDLL_LIBRARY
 
-SOURCES += facedetectordll.cpp
+SOURCES +=  \
+#            facedetectordll.cpp         \
+            facerecognizer.cpp
 
-HEADERS += facedetectordll.h\
-        facedetectordll_global.h
+HEADERS +=  \
+#            facedetectordll.h           \
+            facedetectordll_global.h    \
+            facerecognizer.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
+
+    CONFIG (  release, debug | release    ) {
+        TARGET      = FaceDetectorDll
+    }
+
+    CONFIG ( debug, debug | release    ) {
+        TARGET      = FaceDetectorDlld
+    }
 }

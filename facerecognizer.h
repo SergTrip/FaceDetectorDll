@@ -1,24 +1,15 @@
 #ifndef FACERECOGNIZER_H
 #define FACERECOGNIZER_H
 
+#include "facedetectordll_global.h"
+
 #include <QWidget>
 #include <QImage>
 #include <QTimer>
 #include <QPainter>
 #include <QDebug>
 
-#include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
-
-//#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
-
-#include <opencv2/videoio/videoio.hpp>
-
-#include <opencv2/highgui/highgui.hpp>
-
-#include <opencv2/objdetect/objdetect.hpp>
-
 
 //#define FACE_CASCADE_NAME   "D:\\Dropbox\\Germanij\\Projects\\Faces\\Data\\haarcascades\\haarcascade_frontalface_alt.xml"
 #define FACE_CASCADE_NAME   "/home/sergey/Libs/opencv/data/haarcascades/haarcascade_frontalface_alt.xml"
@@ -37,7 +28,7 @@ class FaceRecognizer;
 //  using namespace cv;
 using namespace std;
 
-class FaceRecognizer : public QWidget
+class FACEDETECTORDLLSHARED_EXPORT FaceRecognizer : public QWidget
 {
     Q_OBJECT
 
@@ -50,28 +41,40 @@ private:
     void detectAndDraw();
 
 private:
-   // Ui::FaceRecognizer *ui;
-
     // Экземпляр изображения Qt
-    QImage  m_oQtImage;
-    // Охватывающий прямоугольник
-    // QRect   m_oQtFaceLocationRect;
-    // Экземпляр таймера
-    QTimer* m_pQtTimer;
-
+    QImage                  m_oQtImage;
     // Хранилище с динамически изменяемым размером
     cv::Mat                 m_oCVMat;
+    // Объект для работы с камерой
     cv::VideoCapture        m_oCVCapture;
 
+    // Классификаторы для обнраужения объекта
     cv::CascadeClassifier   m_pCVFaceCascade;
     cv::CascadeClassifier   m_pCVEyeCascade;
 
     // Реализация унаследованного класса перерисовки
     void paintEvent(QPaintEvent* event);
 
+    // Экземпляр таймера
+    QTimer* m_pQtTimer;
+    // Время таймера
+    int m_nTime;
+
 public slots:
-    // Обработать следующий многоугольник
+    // Обработать следующий кадр
     void queryFrame();
+
+    // Запустить таймер
+    void startTimer();
+    // Остановить таймер
+    void stopTimer();
+    // Установить время
+    void setTime( int time );
+
+public:
+    // Получить текущее изображение
+    QImage getImage();
+
 };
 
 #endif // FACERECOGNIZER_H
