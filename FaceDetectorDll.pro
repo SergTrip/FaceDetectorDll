@@ -15,12 +15,9 @@ TEMPLATE    = lib
 DEFINES += FACEDETECTORDLL_LIBRARY
 
 SOURCES +=  \
-#            facedetectordll.cpp         \
             facerecognizer.cpp
 
 HEADERS +=  \
-#            facedetectordll.h           \
-            facedetectordll_global.h    \
             facerecognizer.h
 
 unix {

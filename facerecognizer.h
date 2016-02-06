@@ -1,8 +1,6 @@
 #ifndef FACERECOGNIZER_H
 #define FACERECOGNIZER_H
 
-#include "facedetectordll_global.h"
-
 #include <QWidget>
 #include <QImage>
 #include <QTimer>
@@ -28,7 +26,7 @@ class FaceRecognizer;
 //  using namespace cv;
 using namespace std;
 
-class FACEDETECTORDLLSHARED_EXPORT FaceRecognizer : public QWidget
+class FaceRecognizer : public QWidget
 {
     Q_OBJECT
 
